@@ -1,1 +1,3 @@
 /Backend/venv
+/Backend/Datacleaning/industry_data.db
+/Backend/Datacleaning/bert_embeddings.pt
