@@ -1,28 +1,24 @@
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
-from api.database import get_connection, initialize_database
-import uvicorn
-import os
+import sqlite3
 
-# Create FastAPI app instance
-app = FastAPI()
+DATABASE_PATH = "./performance.db"
 
-# Enable CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://myfrontend.com"],  # Customize this
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+def get_connection():
+    """Create and return a connection to the SQLite database."""
+    conn = sqlite3.connect(DATABASE_PATH)
+    conn.row_factory = sqlite3.Row  # Enables dictionary-like access for rows
+    return conn
 
-@app.on_event("startup")
-def startup_event():
-    """Initialize the database on application startup."""
-    initialize_database()
-
-
-if __name__ == "__main__":
-    # Dynamically get the port from the environment or default to 8000
-    port = int(os.getenv("PORT", 8000))
-    uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True)
+def initialize_database():
+    """Initialize the database and create necessary tables."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    # Example: Create a table for storing items
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        value REAL NOT NULL
+    )
+    """)
+    conn.commit()
+    conn.close()
